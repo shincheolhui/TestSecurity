@@ -1,0 +1,32 @@
+package org.example.testsecurity.service;
+
+import org.example.testsecurity.dto.JoinDto;
+import org.example.testsecurity.entity.UserEntity;
+import org.example.testsecurity.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+public class JoinService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public void joinProcess(JoinDto joinDto) {
+        
+        // DB에 동일한 username이 존재하는지 확인한다.
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(joinDto.getUsername());
+        // 사용자가 입력한 비밀번호를 암호화한다.
+        userEntity.setPassword(bCryptPasswordEncoder.encode(joinDto.getPassword()));
+        // 사용자 권한 부여
+        userEntity.setRole("ROLE_USER");
+        userRepository.save(userEntity);
+    }
+}
