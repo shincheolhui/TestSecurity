@@ -21,6 +21,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         System.out.println("SecurityConfig.securityFilterChain");
 
+        // 권한에 따라 경로 허용
         http.authorizeHttpRequests((authorizeRequests) -> authorizeRequests
                 .requestMatchers("/", "/login", "/loginProc", "/join", "/joinProc").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
@@ -35,6 +36,19 @@ public class SecurityConfig {
         );
 
         http.csrf(AbstractHttpConfigurer::disable);
+
+        // 다중 로그인 설정
+        http.sessionManagement((auth) -> auth
+                        .maximumSessions(1) // 동일한 아이디로 최대 동시 로그인 가능 수
+                        .maxSessionsPreventsLogin(true)
+                        // 최대 동시 로그인 수를 초과했을 때 처리 방법
+                        // true: 초과 시 새로운 로그인 차단
+                        // false: 초과 시 기존 세션 하나 삭제
+        );
+
+        // 세션 고정 보호
+        http.sessionManagement((auth) -> auth
+                .sessionFixation().changeSessionId());
 
         return http.build();
     }
