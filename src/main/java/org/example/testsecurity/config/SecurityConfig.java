@@ -2,6 +2,8 @@ package org.example.testsecurity.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,17 +25,33 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((authorizeRequests) -> authorizeRequests
-                .requestMatchers("/", "/login", "/loginProc").permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")
+    public RoleHierarchy roleHierarchy() {
+
+        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+
+        hierarchy.setHierarchy("ROLE_C > ROLE_B\n" +
+                               "ROLE_B > ROLE_A");
+
+        return hierarchy;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+
+        http.csrf((auth) -> auth.disable());
+
+        http.authorizeHttpRequests((auth) -> auth
+                .requestMatchers("/login").permitAll()
+                .requestMatchers("/").hasAnyRole("A")
+                .requestMatchers("/manager").hasAnyRole("B")
+                .requestMatchers("/admin").hasAnyRole("C")
                 .anyRequest().authenticated()
         );
 
-        http.httpBasic(Customizer.withDefaults());
-
-        http.csrf(AbstractHttpConfigurer::disable);
+        http.formLogin((auth) -> auth.loginPage("/login")
+                .loginProcessingUrl("/loginProc")
+                .permitAll()
+        );
 
         return http.build();
     }
@@ -44,13 +62,13 @@ public class SecurityConfig {
         UserDetails user1 = User.builder()
                 .username("user1")
                 .password(passwordEncoder().encode("1234"))
-                .roles("ADMIN")
+                .roles("C")
                 .build();
 
         UserDetails user2 = User.builder()
                 .username("user2")
                 .password(passwordEncoder().encode("1234"))
-                .roles("USER")
+                .roles("B")
                 .build();
 
         return new InMemoryUserDetailsManager(user1, user2);
