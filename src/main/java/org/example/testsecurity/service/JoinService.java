@@ -18,8 +18,12 @@ public class JoinService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public void joinProcess(JoinDto joinDto) {
-        
+
         // DB에 동일한 username이 존재하는지 확인한다.
+        boolean isExists = userRepository.existsByUsername(joinDto.getUsername());
+        if (isExists) {
+            return;
+        }
 
         UserEntity userEntity = new UserEntity();
         userEntity.setUsername(joinDto.getUsername());
