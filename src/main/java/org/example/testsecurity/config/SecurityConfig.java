@@ -24,15 +24,47 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    // RoleHierarchyImpl()  is deprecated!
+//    @Bean
+//    public RoleHierarchy roleHierarchy() {
+//
+//        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+//
+//        hierarchy.setHierarchy("ROLE_C > ROLE_B\n" +
+//                               "ROLE_B > ROLE_A");
+//
+//        return hierarchy;
+//    }
+
+    // Spring Security 6.3.x~
+    // 변경된 RoleHierarchyImpl() 방식 사용 : fromHierarchy 메소드 활용
+//    @Bean
+//    public RoleHierarchy roleHierarchy() {
+//
+//        return RoleHierarchyImpl.fromHierarchy("""
+//            ROLE_C > ROLE_B
+//            ROLE_B > ROLE_A
+//            """);
+//    }
+
+    // 메소드 형식 : 명시적으로 접두사("ROLE_") 작성
+//    @Bean
+//    public RoleHierarchy roleHierarchy() {
+//
+//        return RoleHierarchyImpl.withRolePrefix("ROLE_")
+//                .role("C").implies("B")
+//                .role("B").implies("A")
+//                .build();
+//    }
+
+    // 메소드 형식 : 자동으로 ROLE_ 접두사 붙임
     @Bean
     public RoleHierarchy roleHierarchy() {
 
-        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
-
-        hierarchy.setHierarchy("ROLE_C > ROLE_B\n" +
-                               "ROLE_B > ROLE_A");
-
-        return hierarchy;
+        return RoleHierarchyImpl.withDefaultRolePrefix()
+                .role("C").implies("B")
+                .role("B").implies("A")
+                .build();
     }
 
     @Bean
