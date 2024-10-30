@@ -15,6 +15,7 @@ public class JoinController {
 
     @GetMapping("/join")
     public String join() {
+        System.out.println("JoinController.join");
         return "join";
     }
 
@@ -22,9 +23,7 @@ public class JoinController {
     public String joinProc(JoinDto joinDto) {
         System.out.println("JoinController.joinProc");
         System.out.println("joinDto = " + joinDto);
-
         joinService.joinProcess(joinDto);
-
         return "redirect:/login";
     }
 }

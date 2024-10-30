@@ -8,6 +8,7 @@ public class AdminController {
 
     @GetMapping("/admin")
     public String admin() {
+        System.out.println("AdminController.admin");
         return "admin";
     }
 }
