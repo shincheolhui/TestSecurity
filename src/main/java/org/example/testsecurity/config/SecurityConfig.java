@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .permitAll()
         );
 
-        http.csrf(AbstractHttpConfigurer::disable);
+//        http.csrf(AbstractHttpConfigurer::disable);
 
         // 다중 로그인 설정
         http.sessionManagement((auth) -> auth
@@ -49,6 +49,11 @@ public class SecurityConfig {
         // 세션 고정 보호
         http.sessionManagement((auth) -> auth
                 .sessionFixation().changeSessionId());
+
+        // 로그아웃 설정
+        http.logout((auth) -> auth
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/"));
 
         return http.build();
     }
